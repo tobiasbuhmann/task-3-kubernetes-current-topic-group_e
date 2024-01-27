@@ -38,9 +38,9 @@ Depends on your operating system. On windows the easiest way is to install it wi
 `helm install todo-app-group-e .\todo-app-group-e`
 
 #### Test Application
-1. Save POD_NAME variable \
-`$env:POD_NAME = (kubectl get pods --namespace todo-app-group-e -l "app.kubernetes.io/name=todo-app-group-e,app.kubernetes.io/instance=todo-app-group-e" -o jsonpath="{.items[0].metadata.name}")` \
-2. Save CONTAINER_PORT variable \ 
+1. Save POD_NAME variable: \
+`$env:POD_NAME = (kubectl get pods --namespace todo-app-group-e -l "app.kubernetes.io/name=todo-app-group-e,app.kubernetes.io/instance=todo-app-group-e" -o jsonpath="{.items[0].metadata.name}")`
+2. Save CONTAINER_PORT variable: \
 `$env:CONTAINER_PORT = (kubectl get pod --namespace todo-app-group-e $env:POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")`
-3. Port-forwarding to access application through localhost:8080 \
+4. Port-forwarding to access application through `localhost:8080`: \
 `kubectl --namespace todo-app-group-e port-forward $env:POD_NAME 8080:$env:CONTAINER_PORT`
