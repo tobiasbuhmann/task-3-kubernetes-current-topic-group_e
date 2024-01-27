@@ -1,35 +1,46 @@
-# Applications Deployment with ArgoCD
+# TODO App with Helm Chart
 #### Authors: Tobias Buhmann, Mustafa Rafie
-The app and docker image used for this assignment was already built in Task 2 - Kubernetes Manifests. \
+The app and docker image used for this assignment were already built in Task 2 - Kubernetes Manifests. \
 Repository URL: `https://github.com/cloud-native-uas/task-2-kubernetes-manifests-group_e`
 
-### Context
+## Description
+The application provides an overview of a user's tasks. Users can easily create new tasks, mark them as completed or delete them. \
+Instead of deploying the application with `kubectl` (as we did in Task 2), we decided to create a Helm chart for deployment. This makes deployment much simpler, as the various YAML files no longer need to be executed individually and in sequence. Helm Charts allow easy maintenance of application settings in a single YAML file. This is particularly useful during upgrades and helps to avoid potential misconfigurations.
+
+## Setup
+### Kubernetes Context
 #### Set Context
 `kubectl config use-context docker-desktop`
 
-### Namespace
+### Kubernetes Namespace
 #### Create Namespace
-`kubectl apply -f argocd-namespace.yml`
+`kubectl create namespace todo-app-group-e`
 
 #### Set Namespace
-`kubectl config set-context --current --namespace=argocd` \
-`kubectl config get-contexts`
+`kubectl config set-context --current --namespace=todo-app-group-e`
 
-### ArgoCD
+### Helm Chart
+Source: ChatGPT
 #### Installation
-`kubectl create -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -n argocd`
+Depends on your operating system. On windows the easiest way is to install it with Chocolatey Package Manager. \
+`choco install kubernetes-helm`
 
-#### Port-Forwarding to access UI
-`kubectl port-forward svc/argocd-server -n argocd 8080:443`
+#### Create Helm Chart
+`helm create todo-app-group-e`
 
-#### Get Password
-`(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}") | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }`
+#### Update Files
+`Chart.yaml` & `values.yaml`
 
-### Service
-#### Create Service
-`kubectl apply -f service.yml` \
-`kubectl get service -o wide`
+#### Validate Helm Chart
+`helm lint`
 
-### Deployment
-`kubectl apply -f deployment.yml` \
-`kubectl rollout status deployment/todo-app-group-e-deployment`
+#### Deploy Application Using Helm Chart
+`helm install todo-app-group-e .\todo-app-group-e`
+
+#### Test Application
+1. Save POD_NAME variable \
+`$env:POD_NAME = (kubectl get pods --namespace todo-app-group-e -l "app.kubernetes.io/name=todo-app-group-e,app.kubernetes.io/instance=todo-app-group-e" -o jsonpath="{.items[0].metadata.name}")` \
+2. Save CONTAINER_PORT variable \ 
+`$env:CONTAINER_PORT = (kubectl get pod --namespace todo-app-group-e $env:POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")`
+3. Port-forwarding to access application through localhost:8080 \
+`kubectl --namespace todo-app-group-e port-forward $env:POD_NAME 8080:$env:CONTAINER_PORT`

@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: tobiasbuhmann/todo-app-group-e
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+securityContext: {}
+runAsNonRoot: true
+
+serviceAccount:
+  create: false
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 4
